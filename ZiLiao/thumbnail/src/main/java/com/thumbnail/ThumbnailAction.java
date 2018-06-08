@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -20,34 +21,24 @@ public class ThumbnailAction {
 	private UploadService uploadService;
 	@Autowired
 	private ThumbnailService thumbnailService;
-	
-	public UploadService getUploadService() {
-		return uploadService;
-	}
-
-	public ThumbnailService getThumbnailService() {
-		return thumbnailService;
-	}
-
 
 
 	@RequestMapping("/thumbnail")
 	public ModelAndView thumbnail(@RequestParam("image") CommonsMultipartFile file,HttpSession session)throws Exception{
 		
-		System.out.println("============="+file);
-		
-		ModelAndView mv = new ModelAndView();
 		//上传后图片的路径（相对路径）
-		String uploadPath = "/images";
+		String uploadPath = "\\images";
 		//转化为在服务器上的绝对路径
 		String realUploadPath = session.getServletContext().getRealPath(uploadPath);
-		System.out.println(realUploadPath);
+		/*realUploadPath=F:\apache-tomcat-8.0.46\webapps\thumbnail\images*/
 		
-		//原图在服务器上的相对路径信息
+		//原图在服务器上的相对路径信息（其中将文件上传）
 		String imageUrl = uploadService.uploadImage(file, uploadPath, realUploadPath);
-		//缩略图在服务器上的访问路径
+		//缩略图在服务器上的访问路径（其中将文件上传）
 		String thumImageUrl = thumbnailService.thumbnail(file, uploadPath, realUploadPath);
 		
+		
+		ModelAndView mv = new ModelAndView();
 		//设置返回的参数信息
 		mv.addObject("imageUrl",imageUrl);
 		mv.addObject("thumImageUrl",thumImageUrl);
@@ -57,5 +48,12 @@ public class ThumbnailAction {
 		return mv;
 		
 	}
+	
+	@RequestMapping("/hello")
+	@ResponseBody
+	public String hello(){
+		return "hello test!!";
+	}
+	
 	
 }

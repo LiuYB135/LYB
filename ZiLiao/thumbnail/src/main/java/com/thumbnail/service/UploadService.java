@@ -20,8 +20,9 @@ public class UploadService {
 			in = file.getInputStream();
 			
 			//目标路径=服务器的绝对路径+文件名称
-			String des = realUploadPath+"/"+file.getOriginalFilename();
-			System.out.println(des);
+			String des = realUploadPath+"\\"+file.getOriginalFilename();
+			/*des=F:\apache-tomcat-8.0.46\webapps\thumbnail\images\微信图片_20180605222732.jpg*/
+			
 			//输出流 指向 目标文件的路径
 			out = new FileOutputStream(des);
 			
@@ -29,8 +30,8 @@ public class UploadService {
 			int len = 0;
 			//通过输入流读取字节，字节大小大于0，说明有内容
 			while((len = in.read(buffer))>0){
-				//输出流通过循环写出
-				out.write(len);
+				//输出流通过循环写出(将buffer中0~len输出)
+				out.write(buffer,0,len);
 			}
 			
 			
@@ -53,11 +54,11 @@ public class UploadService {
 					e.printStackTrace();
 				}
 			}
-			
 		}
 		
+		/*\images\微信图片_20180605222732.jpg*/
 		//返回目标路径
-		return realUploadPath+"\\"+file.getOriginalFilename();
+		return uploadPath+"\\"+file.getOriginalFilename();
 	}
 	
 }

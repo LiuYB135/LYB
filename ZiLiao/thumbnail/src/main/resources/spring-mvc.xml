@@ -30,6 +30,7 @@
         	<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
         </bean>
         <!-- 上传文件解析器 -->
+        <!-- 有这个才可以进行文件参数的传递 -->
         <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         	<property name="defaultEncoding" value="utf-8"/>
         	<property name="maxUploadSize" value="10485760000"/>

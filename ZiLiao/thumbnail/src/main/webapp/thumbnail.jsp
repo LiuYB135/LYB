@@ -11,7 +11,7 @@
 	<table width="100%">
 		<tr>
 			<td width="50%" align="center">
-				<img src="${imageUrl}" width="500">
+				<img src="${pageContext.request.contextPath }${imageUrl}" width="500">
 			</td>
 			<td width="50%" align="center">
 				<img src="${pageContext.request.contextPath }${thumImageUrl}" >
