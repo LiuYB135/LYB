@@ -36,7 +36,7 @@ public class Img2Base64Util {
         generateImage(imgbese,imgFilePath);
     }
     /**
-     * 将图片转换成Base64编码
+     * 将图片转换成Base64编码(以字符串形式返回)
      * @param imgFile 待处理图片
      * @return
      */
@@ -49,7 +49,8 @@ public class Img2Base64Util {
         //读取图片字节数组
         try 
         {
-            in = new FileInputStream(imgFile);        
+            in = new FileInputStream(imgFile);
+//            System.out.println(in.available());
             data = new byte[in.available()];
             in.read(data);
             in.close();
@@ -58,13 +59,14 @@ public class Img2Base64Util {
         {
             e.printStackTrace();
         }
+        //将字节数组进行编码
         return new String(Base64.encodeBase64(data));
     }
     
     /**
      * 对字节数组字符串进行Base64解码并生成图片
      * @param imgStr 图片数据
-     * @param imgFilePath 保存图片全路径地址
+     * @param imgFilePath 保存图片的路径地址
      * @return
      */
     public static boolean generateImage(String imgStr,String imgFilePath){
@@ -87,7 +89,7 @@ public class Img2Base64Util {
 
             OutputStream out = new FileOutputStream(imgFilePath);    
             out.write(b);
-            out.flush();
+            out.flush();	//刷新输出流
             out.close();
             return true;
         } 

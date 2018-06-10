@@ -53,6 +53,10 @@ public class baiduaiTool {
         return res;
 	}
 	
+	
+	
+	
+	
 	public static JSONObject addUser(AipFace client,String image,String groupId,String userId) {
 		
 	  	 HashMap<String, String> options = new HashMap<String, String>();
