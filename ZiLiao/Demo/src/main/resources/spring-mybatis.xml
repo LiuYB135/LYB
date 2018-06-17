@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"   
+    xmlns:tx="http://www.springframework.org/schema/tx"  
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"  
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd  
+                        http://www.springframework.org/schema/context  
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd  
+                        http://www.springframework.org/schema/mvc  
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/aop 
+                        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+                        http://www.springframework.org/schema/tx 
+                        http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+                        http://www.springframework.org/schema/util 
+                        http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+	<!--自动将servicec层注入 -->
+	<!-- <context:component-scan base-package="com.Demo.service" /> -->
+	
+	<!-- 引入配置文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:jdbc.properties" />
+	</bean>
+
+	<!-- Hikari Datasource 连接池配置-->  
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"  destroy-method="shutdown">  
+		<property name="driverClassName" value="${jdbc.driver}" /> <!-- 无需指定，除非系统无法自动识别 -->  
+		<!-- <property name="jdbcUrl" value="jdbc:mysql://120.78.132.96:3306/Demo?useUnicode=true&amp;characterEncoding=utf-8&amp;allowMultiQueries=true" />  
+		-->
+		 <property name="jdbcUrl" value="jdbc:mysql://119.23.230.116:3306/Demo?useUnicode=true&amp;characterEncoding=utf-8&amp;allowMultiQueries=true" /> 
+		  
+		<property name="username" value="${jdbc.username}" />  
+		<property name="password" value="${jdbc.password}" />  
+		 <!-- 连接只读数据库时配置为true， 保证安全 -->  
+		<property name="readOnly" value="false" />  
+		<!-- 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒 -->  
+		<property name="connectionTimeout" value="30000" />  
+		<!-- 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟 -->  
+		<property name="idleTimeout" value="600000" />  
+		<!-- 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒，参考MySQL wait_timeout参数（show variables like '%timeout%';） -->  
+		<property name="maxLifetime" value="1800000" />  
+		<!-- 连接池中允许的最大连接数。缺省值：10；推荐的公式：((core_count * 2) + effective_spindle_count) -->  
+		<property name="maximumPoolSize" value="10" />  
+	</bean>  
+	<!-- Hikari Datasource end-->  
+
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描mapper文件 -->
+		<property name="mapperLocations" value="classpath:com/Demo/mapper/*.xml"></property>
+		<property name="typeAliasesPackage" value="com.Demo.pojo"/>
+		<!-- <property name="plugins">
+        <list>
+            <bean class="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor" >
+                <property name="properties">
+		        <value>
+		          dialect=mysql
+		        </value>
+		      </property>
+            </bean>
+        </list>
+    	</property> -->
+		<property name="plugins">
+		  <array>
+		    <bean class="com.github.pagehelper.PageHelper">
+		      <property name="properties">
+		        <value>
+		          dialect=mysql
+		        </value>
+		      </property>
+		    </bean>
+		  </array>
+		</property>
+	</bean>
+
+	<!-- mapperDao扫描器 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.Demo.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+	
+	<!-- 开启事务 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager" >  
+        <tx:attributes> 
+        	<!-- 传播行为 --> 
+            <tx:method name="del*" propagation="REQUIRED" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />  
+            <tx:method name="save*" propagation="REQUIRED" rollback-for="java.lang.Exception" />  
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Exception" />  
+            <tx:method name="add*" propagation="REQUIRED" rollback-for="java.lang.Exception" />  
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="updateWorkflow*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception" />  
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true" />  
+            <tx:method name="check*" propagation="SUPPORTS" read-only="true"/>  
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>  
+            <tx:method name="search*" propagation="SUPPORTS" read-only="true"/>  
+            <tx:method name="query*" propagation="SUPPORTS" read-only="true"/>  
+            <tx:method name="*" propagation="SUPPORTS" read-only="true"/>  
+        </tx:attributes>  
+    </tx:advice>
+         
+    <!-- 切面  -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* com.Demo.service..*.*(..))" />
+	</aop:config>
+</beans>
